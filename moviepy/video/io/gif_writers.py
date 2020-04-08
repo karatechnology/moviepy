@@ -293,6 +293,9 @@ def write_gif(
     logger(message="MoviePy - Building file  %s" % filename)
     logger(message="MoviePy - - Generating GIF frames.")
     try:
+        nframes = int(clip.duration * fps)
+        curr_frame = 0
+
         for t, frame in clip.iter_frames(
             fps=fps, logger=logger, with_times=True, dtype="uint8"
         ):
@@ -300,6 +303,10 @@ def write_gif(
                 mask = 255 * clip.mask.get_frame(t)
                 frame = np.dstack([frame, mask]).astype("uint8")
             proc1.stdin.write(frame.tostring())
+
+        if callable(logger.callback):
+            logger(message=(curr_frame, nframes))
+            curr_frame += 1
 
     except IOError as err:
 

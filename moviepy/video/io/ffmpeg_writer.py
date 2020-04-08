@@ -249,6 +249,7 @@ def ffmpeg_write_video(
     ) as writer:
 
         nframes = int(clip.duration * fps)
+        curr_frame = 0
 
         for t, frame in clip.iter_frames(
             logger=logger, with_times=True, fps=fps, dtype="uint8"
@@ -260,6 +261,10 @@ def ffmpeg_write_video(
                 frame = np.dstack([frame, mask])
 
             writer.write_frame(frame)
+
+            if callable(logger.callback):
+                logger(message=(curr_frame, nframes))
+                curr_frame += 1
 
     if write_logfile:
         logfile.close()
